@@ -14,20 +14,25 @@ import sys
 sys.path[0:0] = ['.', '..']
 
 from elftools.elf.elffile import ELFFile
+from elftools.elf.wasmfile import WasmFile
+from elftools.common.exceptions import ELFError
 
 
 def process_file(filename):
     print('Processing file:', filename)
     with open(filename, 'rb') as f:
-        elffile = ELFFile(f)
+        try:
+          file = ELFFile(f)
+        except ELFError:
+          file = WasmFile(f)
 
-        if not elffile.has_dwarf_info():
+        if not file.has_dwarf_info():
             print('  file has no DWARF info')
             return
 
         # get_dwarf_info returns a DWARFInfo context object, which is the
         # starting point for all DWARF-based processing in pyelftools.
-        dwarfinfo = elffile.get_dwarf_info()
+        dwarfinfo = file.get_dwarf_info()
 
         for CU in dwarfinfo.iter_CUs():
             # DWARFInfo allows to iterate over the compile units contained in
