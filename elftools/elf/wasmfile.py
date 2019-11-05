@@ -53,6 +53,13 @@ class WasmSection:
     DataCount = 12
     Event = 13
 
+    def __init__(self, name, data):
+        self.name = name
+        self._data = data
+
+    def data(self):
+        return self._data
+
 
 def read_ULEB128(stream):
     ret = 0
@@ -116,9 +123,8 @@ class WasmFile(object):
             stream = io.BytesIO(user_section)
             name = read_WasmString(stream)
             print(total, name)
-            self._custom_section_name_map[name] = stream.read(total - stream.tell())
+            self._custom_section_name_map[name] = WasmSection(name, stream.read(total - stream.tell()))
         print(self._custom_section_name_map)
-        1/0
 
     def num_sections(self):
         """ Number of sections in the file
@@ -133,18 +139,8 @@ class WasmFile(object):
         return self._make_section(section_header)
 
     def get_section_by_name(self, name):
-        """ Get a section from the file, by name. Return None if no such
-            section exists.
-        """
-        # The first time this method is called, construct a name to number
-        # mapping
-        #
-        if self._section_name_map is None:
-            self._section_name_map = {}
-            for i, sec in enumerate(self.iter_sections()):
-                self._section_name_map[sec.name] = i
-        secnum = self._section_name_map.get(name, None)
-        return None if secnum is None else self.get_section(secnum)
+        print('askk', name)
+        return self._custom_section_name_map.get(name)
 
     def iter_sections(self):
         """ Yield all the sections in the file
