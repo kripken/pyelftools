@@ -131,7 +131,6 @@ class WasmFile(object):
             stream = io.BytesIO(user_section)
             name = read_WasmString(stream)
             self._custom_section_name_map[name] = WasmSection(name, stream.read(total - stream.tell()))
-        print(self._custom_section_name_map)
 
     def num_sections(self):
         """ Number of sections in the file

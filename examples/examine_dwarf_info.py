@@ -42,7 +42,7 @@ def process_file(filename):
             # header elements is, as usual, via item-lookup.
             print('  Found a compile unit at offset %s, length %s' % (
                 CU.cu_offset, CU['unit_length']))
-
+            print(CU.get_abbrev_table())
             # The first DIE in each compile unit describes it.
             top_DIE = CU.get_top_DIE()
 
@@ -50,11 +50,11 @@ def process_file(filename):
             print('    name=%s' % top_DIE.get_full_path())
 
             def dump(DIE, depth=0):
-                print(' ' * depth, DIE.tag)
+                print(' ' * depth, DIE.tag, DIE.attributes.keys())
                 for child in DIE.iter_children():
                     dump(child, depth + 2)
 
-            dump(top_DIE)
+            dump(top_DIE, 3)
 
 if __name__ == '__main__':
     if sys.argv[1] == '--test':
