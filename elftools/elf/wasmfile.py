@@ -189,7 +189,7 @@ class WasmFile(object):
             self.get_section_by_name('.zdebug_info') or
             self.get_section_by_name('.eh_frame'))
 
-    def get_dwarf_info(self, relocate_dwarf_sections=True):
+    def get_dwarf_info(self, relocate_dwarf_sections=False):
         """ Return a DWARFInfo object representing the debugging information in
             this file.
 
