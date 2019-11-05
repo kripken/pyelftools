@@ -54,6 +54,23 @@ class WasmSection:
     Event = 13
 
 
+def read_ULEB128(stream):
+    ret = 0
+    shifts = 0
+    while 1:
+        curr = ord(stream.read(1))
+        ret += (curr & 127) << shifts
+        if not (curr & 128):
+            return ret
+        shifts += 7
+
+
+def read_WasmString(stream):
+    """ Wasm strings are ULEB128 size prefixed """
+    size = read_ULEB128(stream)
+    return str(stream.read(size))
+
+
 class WasmFile(object):
     """ Creation: the constructor accepts a stream (file-like object) with the
         contents of an ELF file.
@@ -86,26 +103,21 @@ class WasmFile(object):
         self._identify_file()
         self._read_sections()
 
-    def _read_ULEB(self):
-        ret = 0
-        shifts = 0
-        while 1:
-            curr = ord(self.stream.read(1))
-            ret += (curr & 127) << shifts
-            if not (curr & 128):
-                return ret
-            shifts += 7
-
     def _read_sections(self):
         self._section_name_map = {}
         total = os.fstat(self.stream.fileno()).st_size
-        print(total)
         while self.stream.tell() < total:
-            code = self._read_ULEB()
-            size = self._read_ULEB()
-            print('saction', code, size)
-            self._section_name_map[code] = self.stream.read(size)
-            print(self.stream.tell())
+            code = read_ULEB128(self.stream)
+            size = read_ULEB128(self.stream)
+            self._section_name_map.setdefault(code, []).append(self.stream.read(size))
+        self._custom_section_name_map = {}
+        for user_section in self._section_name_map[WasmSection.User]:
+            total = len(user_section)
+            stream = io.BytesIO(user_section)
+            name = read_WasmString(stream)
+            print(total, name)
+            self._custom_section_name_map[name] = stream.read(total - stream.tell())
+        print(self._custom_section_name_map)
         1/0
 
     def num_sections(self):
