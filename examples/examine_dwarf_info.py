@@ -45,10 +45,16 @@ def process_file(filename):
 
             # The first DIE in each compile unit describes it.
             top_DIE = CU.get_top_DIE()
-            print('    Top DIE with tag=%s' % top_DIE.tag)
 
             # We're interested in the filename...
             print('    name=%s' % top_DIE.get_full_path())
+
+            def dump(DIE, depth=0):
+                print(' ' * depth, DIE.tag)
+                for child in DIE.iter_children():
+                    dump(child, depth + 2)
+
+            dump(top_DIE)
 
 if __name__ == '__main__':
     if sys.argv[1] == '--test':
