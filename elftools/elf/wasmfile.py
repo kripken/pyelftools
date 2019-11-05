@@ -56,9 +56,17 @@ class WasmSection:
     def __init__(self, name, data):
         self.name = name
         self._data = data
+        self.header = {
+            'sh_size': len(data),
+            'sh_offset': 0,
+            'sh_addr': 0,
+        }
 
     def data(self):
         return self._data
+
+    def __getitem__(self, name):
+        return self.header[name]
 
 
 def read_ULEB128(stream):
@@ -122,7 +130,6 @@ class WasmFile(object):
             total = len(user_section)
             stream = io.BytesIO(user_section)
             name = read_WasmString(stream)
-            print(total, name)
             self._custom_section_name_map[name] = WasmSection(name, stream.read(total - stream.tell()))
         print(self._custom_section_name_map)
 
@@ -139,7 +146,6 @@ class WasmFile(object):
         return self._make_section(section_header)
 
     def get_section_by_name(self, name):
-        print('askk', name)
         return self._custom_section_name_map.get(name)
 
     def iter_sections(self):
@@ -232,9 +238,9 @@ class WasmFile(object):
 
         return DWARFInfo(
                 config=DwarfConfig(
-                    little_endian=self.little_endian,
-                    default_address_size=self.elfclass // 8,
-                    machine_arch=self.get_machine_arch()),
+                    little_endian=True,
+                    default_address_size=32 // 8,
+                    machine_arch='wasm32'),
                 debug_info_sec=debug_sections[debug_info_sec_name],
                 debug_aranges_sec=debug_sections[debug_aranges_sec_name],
                 debug_abbrev_sec=debug_sections[debug_abbrev_sec_name],
