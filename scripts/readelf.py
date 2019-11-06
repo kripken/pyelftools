@@ -28,6 +28,7 @@ from elftools.common.exceptions import ELFError
 from elftools.common.py3compat import (
         ifilter, byte2int, bytes2str, itervalues, str2bytes, iterbytes)
 from elftools.elf.elffile import ELFFile
+from elftools.elf.wasmfile import WasmFile
 from elftools.elf.dynamic import DynamicSection, DynamicSegment
 from elftools.elf.enums import ENUM_D_TAG
 from elftools.elf.segments import InterpSegment
@@ -70,7 +71,10 @@ class ReadElf(object):
             output:
                 output stream to write to
         """
-        self.elffile = ELFFile(file)
+        try:
+          self.elffile = ELFFile(file)
+        except ELFError:
+          self.elffile = WasmFile(file)
         self.output = output
 
         # Lazily initialized if a debug dump is requested

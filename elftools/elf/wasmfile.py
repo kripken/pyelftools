@@ -253,6 +253,9 @@ class WasmFile(object):
                 debug_pubnames_sec = debug_sections[debug_pubnames_name]
                 )
 
+    def get_machine_arch(self):
+        return 'wasm32'
+
     #-------------------------------- PRIVATE --------------------------------#
 
     def __getitem__(self, name):

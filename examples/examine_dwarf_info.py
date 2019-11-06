@@ -49,6 +49,7 @@ def process_file(filename):
             # We're interested in the filename...
             print('    name=%s' % top_DIE.get_full_path())
 
+            # Print the tree in a concise form.
             def dump(DIE, depth=0):
                 print(' ' * depth, DIE.tag, DIE.attributes.keys())
                 for child in DIE.iter_children():
